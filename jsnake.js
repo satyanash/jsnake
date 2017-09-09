@@ -1,3 +1,4 @@
+"use strict";
 
 var LEFT= "LEFT", RIGHT= "RIGHT", UP= "UP", DOWN= "DOWN";
 
@@ -105,7 +106,8 @@ var onload = function(ctx){
 	var scoreDelta = 1;
 	var tickDelta = -5;
 
-	var defaultWidth = defaultHeight = 50;
+	var defaultWidth = 50;
+	var defaultHeight = 50;
 
 	var state = {
 		tickDelay: 100,
@@ -175,7 +177,7 @@ var onload = function(ctx){
 		logState(state);
 
 		//schedule next call
-		setTimeout(tick, state.tickDelay);
+		state.tickId = setTimeout(tick, state.tickDelay);
 	};
 
 	//run the animation sequence
@@ -186,7 +188,17 @@ var onload = function(ctx){
 		drawFruit(ctx, state);
 	});
 
-	//start the ticker
-	setTimeout(tick);
+	document.getElementById('pauseButton').addEventListener('click', function(e){
+		if(state.tickId){
+			clearTimeout(state.tickId);
+			state.tickId = null;
+		}
+	});
+	document.getElementById('resumeButton').addEventListener('click', function(e){
+		if(!state.tickId){
+			//start the ticker
+			state.tickId = setTimeout(tick);
+		}
+	});
 };
 
