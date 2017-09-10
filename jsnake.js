@@ -63,6 +63,24 @@ var drawSnake = function(ctx, state){
 		ctx.fillRect(x, y, girth, girth);
 		ctx.strokeStyle = "White";
 		i && ctx.strokeRect(x, y, girth, girth);
+
+		if( i > 1){
+			var boneWidth = cell.girth * state.field.scaleFactor / 5;
+			switch(cell.dir){
+				case UP:
+					ctx.fillRect(x+(girth/2)-(boneWidth/2), y-(girth/2), boneWidth, girth);
+					break;
+				case DOWN:
+					ctx.fillRect(x+(girth/2)-(boneWidth/2), y+(girth/2), boneWidth, girth);
+					break;
+				case LEFT:
+					ctx.fillRect(x-(girth/2), y+(girth/2)-(boneWidth/2), girth, boneWidth);
+					break;
+				case RIGHT:
+					ctx.fillRect(x+(girth/2), y+(girth/2)-(boneWidth/2), girth, boneWidth);
+					break;
+			}
+		}
 	}
 };
 
