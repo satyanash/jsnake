@@ -1,6 +1,7 @@
 "use strict";
 
-var LEFT= "LEFT", RIGHT= "RIGHT", UP= "UP", DOWN= "DOWN";
+var LEFT = "LEFT", RIGHT = "RIGHT", UP = "UP", DOWN = "DOWN";
+var RUNNING = "RUNNING", GAMEOVER = "GAMEOVER", PAUSED = "PAUSED";
 
 var reverseDir = function(direction){
 	switch(direction){
@@ -186,7 +187,7 @@ var getInitialGameState = function(){
 	var defaultHeight = 25;
 
 	return {
-		gameState: "running",
+		gameState: RUNNING,
 		tickDelay: 100,
 		field: {
 			scaleFactor: 25,
@@ -262,12 +263,12 @@ var onload = function(ctx){
 		for(var i=1; i < state.snake.cells.length; i++){
 			var cell = state.snake.cells[i];
 			if(head.pos.x === cell.pos.x && head.pos.y === cell.pos.y){
-				state.gameState = "ended";
+				state.gameState = GAMEOVER;
 				new Audio('tick.wav').play();
 			}
 		}
 
-		if(state.gameState === "running"){
+		if(state.gameState === RUNNING){
 
 			// check if we ate the fruit
 			if(head.pos.x === state.fruit.pos.x && head.pos.y === state.fruit.pos.y){
@@ -299,13 +300,13 @@ var onload = function(ctx){
 	};
 
 	var togglePause = function(state){
-		if(state.gameState === "paused"){
-			state.gameState = "running";
+		if(state.gameState === PAUSED){
+			state.gameState = RUNNING;
 			//start the ticker
 			state.tickId = setTimeout(function(){tick(state);});
 			return false;
-		} else if(state.gameState === "running"){
-			state.gameState = "paused";
+		} else if(state.gameState === RUNNING){
+			state.gameState = PAUSED;
 			//clearTimeout(state.tickId);
 			//state.tickId = null;
 			return true;
