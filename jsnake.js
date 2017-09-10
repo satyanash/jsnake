@@ -193,8 +193,15 @@ var onload = function(ctx){
 	var scoreDelta = 1;
 	var tickDelta = -2;
 
+	var state;
+
 	var startNewGame = function(){
-		var state = getInitialGameState();
+		if(state){
+			window.cancelAnimationFrame(state.animationId);
+			window.clearTimeout(state.tickId);
+		}
+
+		state = getInitialGameState();
 
 		var startPos = {
 			x: Math.floor(state.field.width / 2),
@@ -216,14 +223,19 @@ var onload = function(ctx){
 			tick(state);
 		});
 
-		document.getElementById('pauseToggle').addEventListener('click', function(e){
+		var pauseButtonHandler = function(e){
 			if(togglePause(state)){
 				e.target.style.borderStyle = 'inset';
 			} else {
 				e.target.style.borderStyle = 'outset';
 			}
-		});
-		document.addEventListener('keydown', function(e) { handleKeyDown(e, state)});
+		};
+
+		document.getElementById('pauseToggle').removeEventListener('click', pauseButtonHandler);
+		document.getElementById('pauseToggle').addEventListener('click', pauseButtonHandler);
+		var keyDownHandler = function(e) { handleKeyDown(e, state)};
+		document.removeEventListener('keydown', keyDownHandler);
+		document.addEventListener('keydown', keyDownHandler);
 	};
 
 	var tick = function(state){
@@ -312,6 +324,10 @@ var onload = function(ctx){
 
 			case 80:// p key
 				togglePause(state);
+				break;
+
+			case 82:// r key
+				startNewGame();
 				break;
 		}
 	};
