@@ -234,6 +234,7 @@ var onload = function(ctx){
 			var cell = state.snake.cells[i];
 			if(head.pos.x === cell.pos.x && head.pos.y === cell.pos.y){
 				state.gameState = "ended";
+				new Audio('tick.wav').play();
 			}
 		}
 
@@ -250,6 +251,7 @@ var onload = function(ctx){
 				// increment point counter
 				state.score += scoreDelta;
 				state.tickDelay += tickDelta;
+				new Audio('ui2.wav').play();
 			}
 
 			turnSnake(state, movementDelta);
