@@ -2,12 +2,22 @@
 
 var LEFT= "LEFT", RIGHT= "RIGHT", UP= "UP", DOWN= "DOWN";
 
+var reverseDir = function(direction){
+	switch(direction){
+		case UP: return DOWN;
+		case DOWN: return UP;
+		case LEFT: return RIGHT;
+		case RIGHT: return LEFT;
+	}
+};
+
 var logState = function(state){
 	document.getElementById("score").innerHTML = state.score;
 	document.getElementById("length").innerHTML = state.snake.length;
-	document.getElementById("snake").innerHTML = state.snake.pos.x + " " + state.snake.pos.y;
+	document.getElementById("snake").innerHTML = snakeHead(state).pos.x + " " + snakeHead(state).pos.y;
 	document.getElementById("fruit").innerHTML = state.fruit.pos.x + " " + state.fruit.pos.y;
 	document.getElementById("tick").innerHTML = state.tickDelay + "ms";
+	document.getElementById("state").innerHTML = state.gameState;
 };
 
 var randomPoint = function(width,height){
@@ -27,24 +37,40 @@ var wrap = function(value, limit){
 	return value;
 };
 
+var wrapPoint = function(point, width, height){
+	return {
+		x: wrap(point.x, width),
+		y: wrap(point.y, height),
+	};
+};
+
 var clear = function(ctx){
 	ctx.fillStyle = "White";
 	ctx.fillRect(0, 0, ctx.canvas.clientWidth, ctx.canvas.clientHeight);
 };
 
 var drawSnake = function(ctx, state){
-	var x = state.snake.pos.x * state.field.scaleFactor;
-	var y = state.snake.pos.y * state.field.scaleFactor;
-	var length = state.snake.length * state.field.scaleFactor;
+	ctx.lineWidth = state.snake.cells[0].girth * state.field.scaleFactor / 5;
+
+	for(var i=0; i < state.snake.cells.length; i++){
+		var cell = state.snake.cells[i];
+		var x = cell.pos.x * state.field.scaleFactor;
+		var y = cell.pos.y * state.field.scaleFactor;
+		var girth = cell.girth * state.field.scaleFactor;
+
+		ctx.fillStyle = i === 0 ? "Blue" : "Red";
+		ctx.fillRect(x, y, girth, girth);
+		ctx.strokeStyle = "White";
+		i && ctx.strokeRect(x, y, girth, girth);
+	}
+
+	/*
+	var lengt3 = state.snake.length * state.field.scaleFactor;
 	var direction = state.snake.dir;
 	var girth = state.snake.girth * state.field.scaleFactor;
 
-	ctx.fillStyle = "Red";
-	ctx.strokeStyle = "White";
-	ctx.lineWidth = girth / 5;
 
 	for( var i=0; i < length / girth; i++){
-		ctx.fillStyle = i === 0 ? "Blue" : "Red";
 		switch(direction){
 			case UP:
 				ctx.fillRect(x, y+(i*girth), girth, girth);
@@ -64,18 +90,33 @@ var drawSnake = function(ctx, state){
 				break;
 		}
 	}
+	*/
 };
 
 var drawFruit = function(ctx, state){
 	var x = state.fruit.pos.x * state.field.scaleFactor;
 	var y = state.fruit.pos.y * state.field.scaleFactor;
-	var s = state.snake.girth * state.field.scaleFactor;
+	var s = state.snake.cells[0].girth * state.field.scaleFactor;
 
 	ctx.fillStyle = "Green";
 	ctx.fillRect(x,y,s,s);
 };
 
 var moveSnake = function(state, movementDelta){
+	for(var i=state.snake.cells.length-1; i >= 0; i--){
+		state.snake.cells[i].pos = wrapPoint(
+			getNextPos(state.snake.cells[i].pos, state.snake.cells[i].dir),
+			state.field.width,
+			state.field.height,
+		);
+		if(i===0){
+			state.snake.cells[i].dir = state.snake.cells[i].dir;
+		} else {
+			state.snake.cells[i].dir = state.snake.cells[i-1].dir;
+		}
+	}
+	
+	/*
 	//move snake one bit ahead
 	switch(state.snake.dir){
 		case UP:
@@ -91,6 +132,7 @@ var moveSnake = function(state, movementDelta){
 			state.snake.pos.x = wrap(state.snake.pos.x + movementDelta, state.field.width);
 			break;
 	}
+	*/
 };
 
 var initializeCtx = function(state){
@@ -100,105 +142,195 @@ var initializeCtx = function(state){
 	return canvas.getContext("2d");
 };
 
-var onload = function(ctx){
-	var movementDelta = 1;
-	var lengthDelta = 1;
-	var scoreDelta = 1;
-	var tickDelta = -5;
+var getNextPos = function(startPos, direction){
+	let movementDelta = 1;
+	switch(direction){
+		case UP:
+			return {
+				x: startPos.x,
+				y: startPos.y - movementDelta,
+			};
+			break;
+		case RIGHT:
+			return {
+				x: startPos.x + movementDelta,
+				y: startPos.y,
+			};
+			break;
+		case DOWN:
+			return {
+				x: startPos.x,
+				y: startPos.y + movementDelta,
+			};
+			break;
+		case LEFT:
+			return {
+				x: startPos.x - movementDelta,
+				y: startPos.y,
+			};
+			break;
+	}
+};
 
-	var defaultWidth = 50;
-	var defaultHeight = 50;
+var createInitialSnake = function(state, startPos){
+	var initialDirection = RIGHT;
+	var lastPos = startPos;
+	for(var i=0; i<state.snake.length; i++){
+		state.snake.cells.push({
+			pos: lastPos,
+			dir: initialDirection,
+			girth: 1,
+		});
+		lastPos = getNextPos(lastPos, reverseDir(initialDirection));
+	}
+};
 
-	var state = {
+var turnSnake = function(state, direction, movementDelta){
+	if( snakeHead(state).dir !== direction && snakeHead(state).dir !== reverseDir(direction)){
+		snakeHead(state).dir = direction;
+		//moveSnake(state, movementDelta);
+	}
+};
+
+var growSnake = function(state, lengthDelta){
+	var tail = snakeTail(state);
+	state.snake.cells.push({
+		pos: getNextPos(tail.pos, reverseDir(tail.dir)),
+		dir: tail.dir,
+		girth: 1,
+	});
+};
+
+var snakeHead = function(state){
+	return state.snake.cells[0];
+};
+var snakeTail = function(state){
+	return state.snake.cells[state.snake.cells.length - 1];
+};
+
+var getInitialGameState = function(){
+	var defaultWidth = 25;
+	var defaultHeight = 25;
+
+	return {
+		gameState: "running",
 		tickDelay: 100,
 		field: {
-			scaleFactor: 17,
+			scaleFactor: 25,
 			width: defaultWidth,
 			height: defaultHeight,
 		},
 		score: 0,
 		snake: {
-			pos: {
-				x : 20,
-				y : 20,
-			}, 
-			dir: RIGHT,
 			length: 5,
-			girth: 1,
+			cells: [],
 		},
 		fruit: {
 			pos: randomPoint(defaultWidth, defaultHeight)
 		},
 	};
+};
 
-	var ctx = initializeCtx(state);
-	clear(ctx);
+var onload = function(ctx){
+	var movementDelta = 1;
+	var lengthDelta = 1;
+	var scoreDelta = 1;
+	var tickDelta = -2;
 
-	document.addEventListener('keydown', function(e) {
-		switch(e.keyCode){
-			case 37:
-	  			if( state.snake.dir !== LEFT && state.snake.dir !== RIGHT){
-					state.snake.dir = LEFT;
-					moveSnake(state, movementDelta);
-				}
-				break;
-			case 38:
-	  			if( state.snake.dir !== UP && state.snake.dir !== DOWN){
-					state.snake.dir = UP;
-					moveSnake(state, movementDelta);
-	  			}
-				break;
-			case 39:
-	  			if( state.snake.dir !== LEFT && state.snake.dir !== RIGHT){
-					state.snake.dir = RIGHT;
-					moveSnake(state, movementDelta);
-	  			}
-				break;
-			case 40:
-	  			if( state.snake.dir !== UP && state.snake.dir !== DOWN){
-					state.snake.dir = DOWN;
-					moveSnake(state, movementDelta);
-	  			}
-				break;
-		}
-	});
+	var startNewGame = function(){
+		var state = getInitialGameState();
 
-	var tick = function(){
-		moveSnake(state, movementDelta);
+		var startPos = {
+			x: Math.floor(state.field.width / 2),
+			y: Math.floor(state.field.height / 2),
+		};
 
+		var ctx = initializeCtx(state);
+		clear(ctx);
+
+		createInitialSnake(state, startPos);
+
+		//run the animation sequence
+		state.animationId = window.requestAnimationFrame(function(){drawFrame(ctx,state);});
+
+		//start the ticker
+		state.tickId = setTimeout(function(){
+			tick(state);
+		});
+
+		document.getElementById('pauseToggle').addEventListener('click', function(e){
+			if(togglePause(state)){
+				e.target.style.borderStyle = 'inset';
+			} else {
+				e.target.style.borderStyle = 'outset';
+			}
+		});
+		document.addEventListener('keydown', function(e) { handleKeyDown(e, state)});
+	};
+
+	var tick = function(state){
+
+		var head = snakeHead(state);
 		// check if we ate the fruit
-		if(state.snake.pos.x === state.fruit.pos.x && state.snake.pos.y === state.fruit.pos.y){
+		if(head.pos.x === state.fruit.pos.x && head.pos.y === state.fruit.pos.y){
+			// add new fruit to the field
 			state.fruit.pos = randomPoint(state.field.width, state.field.height);
-			state.snake.length += lengthDelta;
+
+			// increase the snake's width
+			growSnake(state, lengthDelta);
+
+			// increment point counter
 			state.score += scoreDelta;
 			state.tickDelay += tickDelta;
 		}
 
-		logState(state);
+		moveSnake(state, movementDelta);
 
-		//schedule next call
-		state.tickId = setTimeout(tick, state.tickDelay);
+		if(state.gameState === "running"){
+			//schedule next call
+			state.tickId = setTimeout(function(){tick(state);}, state.tickDelay);
+		}
+		logState(state);
 	};
 
-	//run the animation sequence
-	window.requestAnimationFrame(function drawFrame(){
-		window.requestAnimationFrame(drawFrame);
+	var drawFrame = function(ctx, state){
+		state.animationId = window.requestAnimationFrame(function(){drawFrame(ctx,state);});
 		clear(ctx);
 		drawSnake(ctx, state);
 		drawFruit(ctx, state);
-	});
+	};
 
-	document.getElementById('pauseButton').addEventListener('click', function(e){
-		if(state.tickId){
-			clearTimeout(state.tickId);
-			state.tickId = null;
-		}
-	});
-	document.getElementById('resumeButton').addEventListener('click', function(e){
-		if(!state.tickId){
+	var togglePause = function(state){
+		if(state.gameState === "paused"){
+			state.gameState = "running";
 			//start the ticker
-			state.tickId = setTimeout(tick);
+			state.tickId = setTimeout(function(){tick(state);});
+			return false;
+		} else if(state.gameState === "running"){
+			state.gameState = "paused";
+			//clearTimeout(state.tickId);
+			//state.tickId = null;
+			return true;
 		}
-	});
+	};
+
+	var handleKeyDown = function(e, state){
+		switch(e.keyCode){
+			case 37:
+				turnSnake(state, LEFT, movementDelta);
+				break;
+			case 38:
+				turnSnake(state, UP, movementDelta);
+				break;
+			case 39:
+				turnSnake(state, RIGHT, movementDelta);
+				break;
+			case 40:
+				turnSnake(state, DOWN, movementDelta);
+				break;
+		}
+	};
+
+	document.getElementById('newGameButton').addEventListener('click', startNewGame);
 };
 
