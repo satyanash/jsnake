@@ -14,10 +14,13 @@ button{
 #logTable{
 	margin-left:auto;
 	margin-right:auto;
+	border-collapse: collapse;
+	width: 50%;
+	border: solid black 1px;
 }
 
-#logTable td:first-child{
-	text-align: right;
+#logTable tr:nth-child(2){
+	font-weight: bold;
 }
 		</style>
 	</head>
@@ -27,15 +30,26 @@ button{
 			<button type="button" id="newGameButton">NEW GAME</button>
 			<button type="button" id="pauseToggle">PAUSE</button>
 		</p>
+		<p>Use: <b>←↓↑→</b>, <b>WASD</b> or <b>HJKL</b> to turn, <b>p</b> to pause</p>
 		<canvas id="canvas"></canvas>
 		<table id="logTable">
 			<tbody>
-			<tr><td>State:</td><td id="state"></td></tr>
-			<tr><td>Score:</td><td id="score"></td></tr>
-			<tr><td>Length:</td><td id="length"></td></tr>
-			<tr><td>Snek:</td><td id="snake"></td></tr>
-			<tr><td>Frut:</td><td id="fruit"></td></tr>
-			<tr><td>Tick:</td><td id="tick"></td></tr>
+				<tr>
+					<td>State</td>
+					<td>Score</td>
+					<td>Length</td>
+					<td>Snek</td>
+					<td>Frut</td>
+					<td>Tick</td>
+				</tr>
+				<tr>
+					<td id="state"></td>
+					<td id="score"></td>
+					<td id="length"></td>
+					<td id="snake"></td>
+					<td id="fruit"></td>
+					<td id="tick"></td>
+				</tr>
 			</tbody>
 		</table>
 		<script src="./jsnake.js"></script>

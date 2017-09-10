@@ -307,6 +307,10 @@ var onload = function(ctx){
 				state.nextDir = DOWN;
 				//turnSnake(state, DOWN, movementDelta);
 				break;
+
+			case 80:// p key
+				togglePause(state);
+				break;
 		}
 	};
 
