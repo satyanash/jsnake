@@ -90,6 +90,23 @@ var moveSnake = function(state, movementDelta){
 	}
 };
 
+var getNewFruitPos = function(state){
+	var p;
+	var collision = true;
+	while(collision){
+		p = randomPoint(state.field.width, state.field.height);
+		collision = false;
+		for(var i=0; i < state.snake.cells.length; i++){
+			var cell = state.snake.cells[i];
+			if(p.x === cell.pos.x && p.y === cell.pos.y){
+				collision = true;
+				break;
+			}
+		}
+	}
+	return p;
+};
+
 var initializeCtx = function(state){
 	var canvas = document.getElementById("canvas");
 	canvas.width = state.field.width * state.field.scaleFactor;
@@ -255,7 +272,7 @@ var onload = function(ctx){
 			// check if we ate the fruit
 			if(head.pos.x === state.fruit.pos.x && head.pos.y === state.fruit.pos.y){
 				// add new fruit to the field
-				state.fruit.pos = randomPoint(state.field.width, state.field.height);
+				state.fruit.pos = getNewFruitPos(state);
 
 				// increase the snake's width
 				growSnake(state, lengthDelta);
