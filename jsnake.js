@@ -19,7 +19,6 @@ var logState = function(state){
 	document.getElementById("fruit").innerHTML = state.fruit.pos.x + " " + state.fruit.pos.y;
 	document.getElementById("tick").innerHTML = state.tickDelay + "ms";
 	document.getElementById("state").innerHTML = state.gameState;
-	document.getElementById("marks").innerHTML = state.score;
 };
 
 var randomPoint = function(width,height){
