@@ -138,11 +138,12 @@ var createInitialSnake = function(state, startPos){
 		});
 		lastPos = getNextPos(lastPos, reverseDir(initialDirection));
 	}
+	state.nextDir = initialDirection;
 };
 
-var turnSnake = function(state, direction, movementDelta){
-	if( snakeHead(state).dir !== direction && snakeHead(state).dir !== reverseDir(direction)){
-		snakeHead(state).dir = direction;
+var turnSnake = function(state, movementDelta){
+	if( snakeHead(state).dir !== state.nextDir && snakeHead(state).dir !== reverseDir(state.nextDir)){
+		snakeHead(state).dir = state.nextDir;
 		//moveSnake(state, movementDelta);
 	}
 };
@@ -164,7 +165,7 @@ var snakeTail = function(state){
 };
 
 var getInitialGameState = function(){
-	var defaultWidth = 25;
+	var defaultWidth = 50;
 	var defaultHeight = 25;
 
 	return {
@@ -228,22 +229,31 @@ var onload = function(ctx){
 	var tick = function(state){
 
 		var head = snakeHead(state);
-		// check if we ate the fruit
-		if(head.pos.x === state.fruit.pos.x && head.pos.y === state.fruit.pos.y){
-			// add new fruit to the field
-			state.fruit.pos = randomPoint(state.field.width, state.field.height);
-
-			// increase the snake's width
-			growSnake(state, lengthDelta);
-
-			// increment point counter
-			state.score += scoreDelta;
-			state.tickDelay += tickDelta;
+		// check if we ate ourselves
+		for(var i=1; i < state.snake.cells.length; i++){
+			var cell = state.snake.cells[i];
+			if(head.pos.x === cell.pos.x && head.pos.y === cell.pos.y){
+				state.gameState = "ended";
+			}
 		}
 
-		moveSnake(state, movementDelta);
-
 		if(state.gameState === "running"){
+
+			// check if we ate the fruit
+			if(head.pos.x === state.fruit.pos.x && head.pos.y === state.fruit.pos.y){
+				// add new fruit to the field
+				state.fruit.pos = randomPoint(state.field.width, state.field.height);
+
+				// increase the snake's width
+				growSnake(state, lengthDelta);
+
+				// increment point counter
+				state.score += scoreDelta;
+				state.tickDelay += tickDelta;
+			}
+
+			turnSnake(state, movementDelta);
+			moveSnake(state, movementDelta);
 			//schedule next call
 			state.tickId = setTimeout(function(){tick(state);}, state.tickDelay);
 		}
@@ -276,22 +286,26 @@ var onload = function(ctx){
 			case 37://Left Arrow
 			case 72:// h key
 			case 65:// a key
-				turnSnake(state, LEFT, movementDelta);
+				state.nextDir = LEFT;
+				//turnSnake(state, LEFT, movementDelta);
 				break;
 			case 38://Up Arrow
 			case 75:// k key
 			case 87:// w key
-				turnSnake(state, UP, movementDelta);
+				state.nextDir = UP;
+				//turnSnake(state, UP, movementDelta);
 				break;
 			case 39://Right Arrow
 			case 76:// l key
 			case 68:// d key
-				turnSnake(state, RIGHT, movementDelta);
+				state.nextDir = RIGHT;
+				//turnSnake(state, RIGHT, movementDelta);
 				break;
 			case 40://Down Arrow
 			case 74:// j key
 			case 83:// s key
-				turnSnake(state, DOWN, movementDelta);
+				state.nextDir = DOWN;
+				//turnSnake(state, DOWN, movementDelta);
 				break;
 		}
 	};
