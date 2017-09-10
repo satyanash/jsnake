@@ -13,7 +13,7 @@ var reverseDir = function(direction){
 
 var logState = function(state){
 	document.getElementById("score").innerHTML = state.score;
-	document.getElementById("length").innerHTML = state.snake.length;
+	document.getElementById("length").innerHTML = state.snake.cells.length;
 	document.getElementById("snake").innerHTML = snakeHead(state).pos.x + " " + snakeHead(state).pos.y;
 	document.getElementById("fruit").innerHTML = state.fruit.pos.x + " " + state.fruit.pos.y;
 	document.getElementById("tick").innerHTML = state.tickDelay + "ms";
@@ -130,7 +130,7 @@ var getNextPos = function(startPos, direction){
 var createInitialSnake = function(state, startPos){
 	var initialDirection = RIGHT;
 	var lastPos = startPos;
-	for(var i=0; i<state.snake.length; i++){
+	for(var i=0; i<state.snake.initalLength; i++){
 		state.snake.cells.push({
 			pos: lastPos,
 			dir: initialDirection,
@@ -178,7 +178,7 @@ var getInitialGameState = function(){
 		},
 		score: 0,
 		snake: {
-			length: 5,
+			initalLength: 5,
 			cells: [],
 		},
 		fruit: {
