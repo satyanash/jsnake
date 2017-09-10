@@ -1,22 +1,43 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>JS Snake</title>
+		<title>snek</title>
+		<style>
+body{
+	background-color:LightGray;
+	text-align:center;
+}
+button{
+	padding: 10px;
+	font-size: 120%;
+}
+#logTable{
+	margin-left:auto;
+	margin-right:auto;
+}
+
+#logTable td:first-child{
+	text-align: right;
+}
+		</style>
 	</head>
-	<body style="background-color:LightGray;" onload="onload()">
-		<p>
-		State: <span id="state"></span>,
-		Score: <span id="score"></span>,
-		Length: <span id="length"></span>,
-		Snake Pos: <span id="snake"></span>,
-		Fruit Pos: <span id="fruit"></span>,
-		Tick: <span id="tick"></span>
-		</p>
+	<body style="" onload="onload()">
+		<h2 id="marks">snek</h2>
 		<p>
 			<button type="button" id="newGameButton">NEW GAME</button>
 			<button type="button" id="pauseToggle">PAUSE</button>
 		</p>
 		<canvas id="canvas"></canvas>
+		<table id="logTable">
+			<tbody>
+			<tr><td>State:</td><td id="state"></td></tr>
+			<tr><td>Score:</td><td id="score"></td></tr>
+			<tr><td>Length:</td><td id="length"></td></tr>
+			<tr><td>Snek:</td><td id="snake"></td></tr>
+			<tr><td>Frut:</td><td id="fruit"></td></tr>
+			<tr><td>Tick:</td><td id="tick"></td></tr>
+			</tbody>
+		</table>
 		<script src="./jsnake.js"></script>
 	</body>
 </html>

@@ -18,6 +18,7 @@ var logState = function(state){
 	document.getElementById("fruit").innerHTML = state.fruit.pos.x + " " + state.fruit.pos.y;
 	document.getElementById("tick").innerHTML = state.tickDelay + "ms";
 	document.getElementById("state").innerHTML = state.gameState;
+	document.getElementById("marks").innerHTML = state.score;
 };
 
 var randomPoint = function(width,height){
@@ -63,34 +64,6 @@ var drawSnake = function(ctx, state){
 		ctx.strokeStyle = "White";
 		i && ctx.strokeRect(x, y, girth, girth);
 	}
-
-	/*
-	var lengt3 = state.snake.length * state.field.scaleFactor;
-	var direction = state.snake.dir;
-	var girth = state.snake.girth * state.field.scaleFactor;
-
-
-	for( var i=0; i < length / girth; i++){
-		switch(direction){
-			case UP:
-				ctx.fillRect(x, y+(i*girth), girth, girth);
-				i && ctx.strokeRect(x, y+(i*girth), girth, girth);
-				break;
-			case DOWN:
-				ctx.fillRect(x, y-(i*girth), girth, girth);
-				i && ctx.strokeRect(x, y-(i*girth), girth, girth);
-				break;
-			case LEFT:
-				ctx.fillRect(x+(i*girth), y, girth, girth);
-				i && ctx.strokeRect(x+(i*girth), y, girth, girth);
-				break;
-			case RIGHT:
-				ctx.fillRect(x-(i*girth), y, girth, girth);
-				i && ctx.strokeRect(x-(i*girth), y, girth, girth);
-				break;
-		}
-	}
-	*/
 };
 
 var drawFruit = function(ctx, state){
@@ -115,24 +88,6 @@ var moveSnake = function(state, movementDelta){
 			state.snake.cells[i].dir = state.snake.cells[i-1].dir;
 		}
 	}
-	
-	/*
-	//move snake one bit ahead
-	switch(state.snake.dir){
-		case UP:
-			state.snake.pos.y = wrap(state.snake.pos.y - movementDelta, state.field.height);
-			break;
-		case LEFT:
-			state.snake.pos.x = wrap(state.snake.pos.x - movementDelta, state.field.width);
-			break;
-		case DOWN:
-			state.snake.pos.y = wrap(state.snake.pos.y + movementDelta, state.field.height);
-			break;
-		case RIGHT:
-			state.snake.pos.x = wrap(state.snake.pos.x + movementDelta, state.field.width);
-			break;
-	}
-	*/
 };
 
 var initializeCtx = function(state){
@@ -251,7 +206,9 @@ var onload = function(ctx){
 		createInitialSnake(state, startPos);
 
 		//run the animation sequence
-		state.animationId = window.requestAnimationFrame(function(){drawFrame(ctx,state);});
+		state.animationId = window.requestAnimationFrame(function(){
+			drawFrame(ctx,state);
+		});
 
 		//start the ticker
 		state.tickId = setTimeout(function(){
@@ -316,16 +273,24 @@ var onload = function(ctx){
 
 	var handleKeyDown = function(e, state){
 		switch(e.keyCode){
-			case 37:
+			case 37://Left Arrow
+			case 72:// h key
+			case 65:// a key
 				turnSnake(state, LEFT, movementDelta);
 				break;
-			case 38:
+			case 38://Up Arrow
+			case 75:// k key
+			case 87:// w key
 				turnSnake(state, UP, movementDelta);
 				break;
-			case 39:
+			case 39://Right Arrow
+			case 76:// l key
+			case 68:// d key
 				turnSnake(state, RIGHT, movementDelta);
 				break;
-			case 40:
+			case 40://Down Arrow
+			case 74:// j key
+			case 83:// s key
 				turnSnake(state, DOWN, movementDelta);
 				break;
 		}
