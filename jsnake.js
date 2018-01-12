@@ -60,10 +60,46 @@ var drawSnake = function(ctx, state){
 		var girth = cell.girth * state.field.scaleFactor;
 
 		ctx.fillStyle = i === 0 ? "Blue" : "Red";
-		ctx.fillRect(x, y, girth, girth);
+		if( i === 0){
+			ctx.fillRect(x, y, girth, girth);
+		} else if( i % 3 === 0){
+			switch(cell.dir){
+				case UP:
+				case DOWN:
+					ctx.fillRect(x, y, girth/2, girth);
+					break;
+				case LEFT:
+				case RIGHT:
+					ctx.fillRect(x, y, girth, girth/2);
+					break;
+			}
+		} else if( i % 3 === 1){
+			switch(cell.dir){
+				case UP:
+				case DOWN:
+					ctx.fillRect(x+(girth*1/4), y, girth/2, girth);
+					break;
+				case LEFT:
+				case RIGHT:
+					ctx.fillRect(x, y+(girth*1/4), girth, girth/2);
+					break;
+			}
+		} else {
+			switch(cell.dir){
+				case UP:
+				case DOWN:
+					ctx.fillRect(x+(girth*1/2), y, girth/2, girth);
+					break;
+				case LEFT:
+				case RIGHT:
+					ctx.fillRect(x, y+(girth*1/2), girth, girth/2);
+					break;
+			}
+		}
 		ctx.strokeStyle = "White";
 		i && ctx.strokeRect(x, y, girth, girth);
 
+		/*
 		if( i > 1){
 			var boneWidth = cell.girth * state.field.scaleFactor / 5;
 			switch(cell.dir){
@@ -81,6 +117,7 @@ var drawSnake = function(ctx, state){
 					break;
 			}
 		}
+		*/
 	}
 };
 
@@ -222,7 +259,7 @@ var getInitialGameState = function(){
 	};
 };
 
-var onload = function(ctx){
+var onload = function(){
 	var movementDelta = 1;
 	var lengthDelta = 1;
 	var scoreDelta = 1;
